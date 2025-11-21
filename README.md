@@ -18,9 +18,17 @@
 
    請在對應的資料夾中建立 `.env` 檔案：
 
-   1. [後端設定](.backend/README.md) (backend/`.env`)
+   1. Docker 設定 (根目錄 `.env`)
 
-   2. [BFF 設定](.web/README.md) (web/`.env`)
+      ```
+      MONGO_INITDB_ROOT_USERNAME=
+      MONGO_INITDB_ROOT_PASSWORD=
+      MONGODB_CONNECTION_URL=mongodb://帳號:密碼@mongo:27017
+      ```
+
+   2. [後端設定](.backend/README.md) (backend/`.env`)
+
+   3. [BFF 設定](.web/README.md) (web/`.env`)
 
 3. 啟動服務 (Docker)
 
