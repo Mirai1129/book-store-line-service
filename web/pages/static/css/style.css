@@ -1,0 +1,610 @@
+/* ===========================================
+   共用樣式（溫暖米色系） - 帶按鈕動畫與簡潔排版
+=========================================== */
+
+/* 🌄 全站背景設定 */
+body {
+    position: relative;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Microsoft JhengHei', sans-serif;
+    background: var(--bg);
+    color: #333;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ✅ 背景圖片 + 可調透明度 */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("book.jpg") no-repeat center center fixed;
+    background-size: cover;
+    opacity: 0.4;
+    z-index: -1;
+}
+
+/* --- 全域設定 --- */
+:root{
+    --bg: #f6efe6;
+    --card: #ffffff;
+    --accent: #628545;
+    --accent-dark: #9b5d2f;
+    --muted: #6b5a4a;
+}
+
+/* 📚 新增 intro-section，圖片＋文字全置中 */
+.intro-section {
+    text-align: center;
+    margin-top: 120px;
+}
+.intro-image img {
+    width: 220px;
+    height: auto;
+    margin-bottom: 10px;
+}
+.intro-text {
+    font-size: 1.3rem;
+    color: #555;
+    font-weight: 500;
+}
+
+/* 🧭 導覽列外層 */
+.nav {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,250,245,0.95));
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2vw;
+    height: 16vh;
+}
+
+/* 📦 導覽列容器 */
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* 📘 品牌 LOGO 與名稱 */
+.brand {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 1.2rem;
+}
+.brand-logo {
+    width: 50px;
+    height: auto;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 導覽連結 */
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+    margin-left: 30px;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+.nav-links a:hover {
+    color: #8e564e;
+}
+
+/* 導覽右側使用者資訊與按鈕 */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 40px; /* 往左一點 */
+}
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    color: #474747;
+}
+.nav-user #user-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.nav button {
+    margin-left: 8px;
+    padding: 8px 14px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+.nav button:hover {
+    background: var(--accent-dark);
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* 主要容器 */
+.container {
+    max-width: 1000px;
+    margin: 28px auto;
+    padding: 0 16px;
+}
+
+/* 搜尋區 */
+.hero {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+.search {
+    display: flex;
+    gap: 8px;
+}
+.search input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    min-width: 260px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.search input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(176,120,63,0.12);
+}
+.search button {
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: white;
+    border: 0;
+    cursor: pointer;
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+.search button:hover {
+    background: var(--accent-dark);
+    transform: scale(1.03);
+}
+
+/* 書籍列表 */
+.book-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+.book {
+    background: var(--card);
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer; /* 讓卡片滑鼠變小手 */
+}
+.book:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+.book img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: #eee;
+}
+.book h4 { margin: 0 0 6px 0; font-size: 1rem; }
+.book p { margin: 0 0 8px 0; color: var(--muted); font-size: 0.9rem; }
+.book .row {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+.btn-add {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-add:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+/* 停用按鈕樣式 */
+.btn-add.disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* 我的書籍上方操作按鈕 */
+.actions {
+    display:flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+.actions button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: 0;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+}
+.actions button:hover { transform: scale(1.03); }
+
+/* 購物車底部按鈕 */
+.cart-footer {
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    margin-top: 14px;
+    flex-wrap:wrap;
+}
+.cart-footer button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: white;
+    border: 0;
+    cursor: pointer;
+}
+.cart-footer button:hover { transform: scale(1.03); }
+
+/* 首頁歡迎遮罩 */
+.overlay {
+    position: fixed;
+    inset: 0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(0,0,0,0.25);
+    z-index: 1000;
+}
+.welcomeBox {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 18px;
+    border-radius: 12px;
+    max-width: 420px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+/* 電腦板響應式 */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .nav-links a {
+        display: block;
+        margin: 10px 0;
+    }
+}
+
+
+/* ===== 手機版（≤600px） ===== */
+@media (max-width: 600px) {
+
+    /* 導覽列整體 */
+    .nav {
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 6px 0px;
+        height: auto;
+        gap: 4px;
+    }
+
+    /* 品牌 LOGO + 名稱 */
+    .brand {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        margin: 0;
+    }
+    .brand-logo {
+        width: 35px;
+        height: auto;
+        margin-right: 4px;
+    }
+    .brand-name {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* 導覽連結 */
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 auto;
+    }
+    .nav-links a {
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    /* 使用者資訊 + 登出按鈕 */
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        flex: 0 0 auto;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+    }
+    .nav-user #user-picture {
+        width: 30px;
+        height: 30px;
+    }
+    .nav-user span {
+        font-size: 0.8rem;
+    }
+
+    /* 登出按鈕 */
+    .nav button {
+        font-size: 0.8rem;
+        padding: 6px 7px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        border: 0;
+        cursor: pointer;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    }
+
+    /* 搜尋區按鈕與輸入欄置中且同寬 */
+    .search {
+        flex-direction: column;
+        gap: 6px;
+        width: 90%;
+        margin: 0 auto 12px auto;
+        align-items: center;
+    }
+    .search input, .search button {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+    .container {
+        margin-top: 10px;
+    }
+    .actions {
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+    .book img {
+        height: 160px;
+    }
+}
+
+/* ===========================
+   📘 書籍彈窗 Modal (已優化圖片顯示)
+   =========================== */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+/* 彈窗內容容器 */
+.modal-content {
+    background: #fff;
+    width: 90%;
+    max-width: 450px; /* 稍微加寬一點點 */
+    padding: 20px;
+    border-radius: 12px;
+    position: relative;
+    text-align: center;
+
+    /* 🔴 關鍵：限制高度並允許捲動 */
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    animation: fadeIn 0.25s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+/* ❌ 關閉按鈕 */
+.close, .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 26px;
+    cursor: pointer;
+    z-index: 10; /* 確保在最上層 */
+    color: #666;
+}
+
+/* 📷 圖片容器與主圖 */
+.modal-img-container {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#modalImg {
+    width: 100%;
+    height: auto;
+
+    /* 🔴 關鍵：限制圖片最大高度，避免撐爆 */
+    max-height: 35vh;
+    object-fit: contain;
+
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+/* 🖼️ 縮圖區塊 */
+.modal-thumbnails {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.thumb-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid #ddd;
+    opacity: 0.7;
+    transition: all 0.2s;
+}
+
+.thumb-img:hover, .thumb-img.active {
+    border-color: var(--accent);
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* 文字排版 */
+.modal h3 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 1.3rem;
+}
+.modal p {
+    margin: 5px 0;
+    font-size: 0.95rem;
+}
+.price {
+    font-weight: bold;
+    color: #e74c3c;
+    font-size: 1.1rem;
+}
+.desc {
+    margin-top: 12px;
+    color: #555;
+    text-align: left;
+    line-height: 1.5;
+    background: #f8f8f8;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+/* 彈窗內的按鈕 */
+#modalAddToCartBtn {
+    margin-top: 15px;
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* --- 圖片畫廊容器 (包住 大圖 + 左右按鈕) --- */
+.modal-gallery-wrapper {
+    position: relative; /* 讓內部的絕對定位按鈕以此為基準 */
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* --- 大圖樣式 (Main Image) --- */
+#modalImg {
+    width: 100%;
+    height: auto;
+    max-height: 35vh;
+    object-fit: contain;
+    border-radius: 6px;
+    /* 確保圖片不會蓋住按鈕 */
+    z-index: 1;
+}
+
+/* --- 左右切換按鈕樣式 --- */
+.nav-btn {
+    position: absolute; /* 絕對定位：浮在圖片上或旁邊 */
+    top: 50%;           /* 垂直置中 */
+    transform: translateY(-50%);
+
+    background-color: rgba(255, 255, 255, 0.8); /* 半透明白底 */
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+
+    font-size: 18px;
+    color: #333;
+    cursor: pointer;
+    z-index: 10; /* 確保按鈕在最上層，按得到 */
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* 滑鼠移上去的效果 */
+.nav-btn:hover {
+    background-color: #fff;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* 左邊按鈕位置 */
+.nav-btn.prev {
+    left: 10px; /* 距離左邊 10px */
+}
+
+/* 右邊按鈕位置 */
+.nav-btn.next {
+    right: 10px; /* 距離右邊 10px */
+}

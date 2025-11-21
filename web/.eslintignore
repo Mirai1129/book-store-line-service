@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+coverage/
+
+.env
+*.config.js
+
+public/
+pages/
+*.min.js
+
+tests/tmp/
+
+.idea/

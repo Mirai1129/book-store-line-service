@@ -1,0 +1,29 @@
+# Git
+
+.git
+.gitignore
+
+# Node Dependencies
+
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment Variables
+
+.env
+.env.local
+.env.*
+
+# Editor / IDE
+
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Build output (如果有 build 步驟，通常不複製 dist/ 或 build/)
+
+dist/
+build/

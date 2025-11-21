@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book store</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link rel="stylesheet" href="../static/css/style.css"/>
+</head>
+<body id="page-index">
+
+<div id="loading-screen">
+    <p>Initial Line Liff...</p>
+</div>
+
+<header class="nav">
+    <div class="nav-container">
+        <!-- 📘 左側：品牌區塊（小 logo + 名稱） -->
+        <div class="brand">
+            <img src="logo.png" alt="網站Logo" class="brand-logo" />
+            <span class="brand-name">LineShelf AI書快拍</span>
+        </div>
+        <nav class="nav-links">
+            <a href="/">首頁</a>
+            <a href="/book">我的書籍</a>
+            <a href="/cart">購物車</a>
+        </nav>
+
+    </div>
+    <div class="nav-right">
+        <div class="nav-user">
+            <img id="user-picture" src="" alt="User Picture">
+            <span id="user-name"></span>
+            <span id="user-id" style="display:none;"></span>
+        </div>
+        <button onclick="liff.logout()">登出</button>
+    </div>
+</header>
+<main class="container">
+    <!-- ⭐ 介紹區塊 -->
+    <div class="intro-section">
+        <div class="intro-image">
+            <img src="logo.png" alt="AI書快拍圖片" />
+        </div>
+        <p class="intro-text">An AI-powered second-hand bookstore.</p>
+        <br>
+    </div>
+
+    <!-- 🔍 搜尋區 -->
+    <div class="hero">
+        <div class="search">
+            <input id="searchInput" placeholder="搜尋書名或作者..." />
+            <button id="searchBtn">搜尋</button>
+        </div>
+    </div>
+
+    <!-- 書籍列表 -->
+    <section class="book-list" id="bookList">
+        <!-- JS 動態渲染書籍卡片 -->
+    </section>
+</main>
+
+<div id="welcomeOverlay" class="overlay">
+    <div class="welcomeBox">
+        <p>⚠️請勿任意修改或偽造圖片，如有違反並經查證屬實，將依法追究法律責任。</p>
+    </div>
+</div>
+
+<div id="bookModal" class="modal">
+    <div class="modal-content">
+
+        <!-- ❌ X 關閉 -->
+        <span id="modalClose" class="close">&times;</span>
+
+        <!-- 📷 圖片 + 左右按鈕 -->
+        <div class="modal-img-box">
+            <button id="prevImg" class="nav-btn">←</button>
+            <img id="modalImg" src="" alt="Book Image">
+            <button id="nextImg" class="nav-btn">→</button>
+        </div>
+
+        <!-- 📖 書籍資訊 -->
+        <h2 id="modalTitle"></h2>
+        <p id="modalAuthor"></p>
+        <p id="modalPrice" class="price"></p>
+        <p id="modalDescription" class="desc"></p>
+    </div>
+</div>
+<script type="module" src="../static/js/index.js"></script>
+</body>
+</html>

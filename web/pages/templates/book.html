@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>LineShelf AI書快拍 - 我的書籍</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link rel="stylesheet" href="../static/css/style.css"/>
+    <style>
+        /* 半透明背景遮罩 (您原本的) */
+        #modalOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* 上架書籍卡片 (您原本的) */
+        #addBookForm {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            /* 為了避免內容過多超出，增加滾動 (您原本沒有，建議加上) */
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        /* 您原本的 h3 樣式 */
+        #addBookForm h3 {
+            margin-top: 0;
+            margin-bottom: 15px; /* 您原本的值 */
+            text-align: center;
+        }
+
+        /* 您原本的 label 樣式 */
+        #addBookForm label {
+            display: block;
+            margin-bottom: 10px; /* 您原本的值 */
+            /* 您可能需要加 font-weight: bold; */
+        }
+
+        /* 您原本的 input 樣式 (我稍微調整了寬度計算) */
+        #addBookForm input[type="text"],
+        #addBookForm input[type="number"],
+        #addBookForm input[type="file"] {
+            width: calc(100% - 22px); /* 扣掉 padding 和 border */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* 檔案上傳 input 可能需要額外樣式 */
+        #addBookForm input[type="file"] {
+            border: none; /* 移除邊框 */
+            padding-left: 0; /* 移除左邊 padding */
+        }
+
+
+        /* 您原本的關閉按鈕樣式 */
+        #closeModal {
+            position: absolute;
+            top: 10px;
+            right: 12px; /* 您原本的值 */
+            background: none;
+            border: none;
+            font-size: 18px; /* 您原本的值 */
+            cursor: pointer;
+            color: #aaa; /* 增加顏色 */
+            padding: 5px; /* 增加點擊範圍 */
+            line-height: 1; /* 避免按鈕太高 */
+        }
+
+        #closeModal:hover {
+            color: #555; /* 增加 hover 效果 */
+        }
+
+        /* 您原本的上傳按鈕樣式 (如果有的話) */
+        #addBookForm button#uploadBtn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #00B900;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        #addBookForm button#uploadBtn:hover {
+            background-color: #008a00;
+        }
+
+
+        /* 🔽🔽🔽 [ 🟢 新增 CSS：編輯視窗樣式 (直接複製您上面的) ] 🔽🔽🔽 */
+        /* 我們直接複製 #modalOverlay 和 #addBookForm 的樣式給新的 ID */
+        #editModalOverlay { /* 複製 #modalOverlay 樣式 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none; /* 預設隱藏 */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #editBookForm { /* 複製 #addBookForm 樣式 */
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        #editBookForm h3 { /* 複製 #addBookForm h3 樣式 */
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #editBookForm label { /* 複製 #addBookForm label 樣式 */
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold; /* 加粗 */
+        }
+
+        #editBookForm input[type="text"],
+        #editBookForm input[type="number"] { /* 複製 #addBookForm input 樣式 */
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #editBookForm button#saveEditBtn { /* 儲存按鈕樣式 (給個不同顏色) */
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none; /* 改成藍色 */
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        #editBookForm button#saveEditBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #editBookForm #closeEditModal { /* 編輯視窗的關閉按鈕 (複製 #closeModal 樣式) */
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 18px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #aaa;
+            padding: 5px;
+            line-height: 1;
+        }
+
+        #editBookForm #closeEditModal:hover {
+            color: #555;
+        }
+
+        /* 🔼🔼🔼 [ 🟢 新增 CSS ] 🔼🔼🔼 */
+
+
+        /* 您原本的其他 CSS 樣式... (例如 nav, .container, .book-list 等) */
+        /* ... */
+
+    </style>
+</head>
+<body id="page-mybooks">
+<header class="nav">
+    <div class="nav-container">
+        <div class="brand">
+            <img src="logo.png" alt="網站Logo" class="brand-logo"/>
+            <span class="brand-name">LineShelf AI書快拍</span>
+        </div>
+        <nav class="nav-links">
+            <a href="/">首頁</a>
+            <a href="/book">我的書籍</a>
+            <a href="/cart">購物車</a>
+        </nav>
+    </div>
+    <div class="nav-right">
+        <div class="nav-user">
+            <img id="user-picture" src="" alt="User Picture"> <span id="user-name"></span>
+            <span id="user-id" style="display:none;"></span>
+        </div>
+        <button onclick="liff.logout()">登出</button>
+    </div>
+</header>
+
+<main class="container">
+    <br><br><br>
+    <h2>我的書籍</h2>
+    <div class="actions">
+        <button id="btnAdd">上架書籍</button>
+        <button id="btnManage">管理書籍</button>
+        <button onclick="window.location='/'">返回首頁</button>
+    </div>
+
+    <div id="modalOverlay">
+        <div id="addBookForm">
+            <button id="closeModal">&times;</button>
+            <h3>上架新書</h3>
+            <input type="text" id="bookTitle" placeholder="書名"/><br/>
+            <input type="text" id="bookAuthor" placeholder="作者"/><br/>
+            <input type="number" id="bookPrice" placeholder="價格"/><br/>
+
+            <label>封面(front)：<input type="file" id="bookFrontInput" accept="image/*"/></label>
+            <label>書背(spine)：<input type="file" id="bookSpineInput" accept="image/*"/></label>
+            <label>封底(back)：<input type="file" id="bookBackInput" accept="image/*"/></label>
+
+            <p>AI書況預測: <span id="bookCondition">尚未預測</span></p>
+            <div id="result"></div>
+
+            <button id="uploadBtn">上傳書籍</button>
+        </div>
+    </div>
+
+    <div id="editModalOverlay">
+        <div id="editBookForm">
+            <button id="closeEditModal">&times;</button>
+            <h3>編輯書籍資料</h3>
+            <input type="hidden" id="editBookId"/>
+
+            <label>書名：</label>
+            <input type="text" id="editBookTitle"/><br/>
+
+            <label>作者：</label>
+            <input type="text" id="editBookAuthor"/><br/>
+
+            <label>價格：</label>
+            <input type="number" id="editBookPrice"/><br/>
+
+            <label>書況 (AI預測)：</label>
+            <input type="text" id="editBookCondition"/><br/>
+
+            <button id="saveEditBtn">儲存變更</button>
+        </div>
+    </div>
+    <section class="book-list" id="myBooksList"></section>
+</main>
+
+<script type="module" src="../static/js/book.js"></script>
+<script>
+    // --- [新增書籍] Modal 的控制 (保留您原本的) ---
+    const btnAdd = document.getElementById('btnAdd');
+    const modal = document.getElementById('modalOverlay');
+    const closeModal = document.getElementById('closeModal');
+
+    // 檢查元素是否存在再綁定事件
+    if (btnAdd && modal) {
+        btnAdd.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+    } else {
+        if (!btnAdd) console.error("HTML 錯誤: 找不到 'btnAdd' 按鈕");
+        if (!modal) console.error("HTML 錯誤: 找不到 'modalOverlay'");
+    }
+
+    if (closeModal && modal) {
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    } else {
+        if (!closeModal) console.error("HTML 錯誤: 找不到 'closeModal' 按鈕");
+    }
+
+    // 點背景也關閉 Modal (保留您原本的)
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+    }
+
+    // 🔽🔽🔽 [ 🟢 新增的 JS 區塊：控制編輯 Modal ] 🔽🔽🔽
+    const editModal = document.getElementById('editModalOverlay');
+    const closeEditModal = document.getElementById('closeEditModal');
+
+    // 檢查元素是否存在再綁定事件
+    if (closeEditModal && editModal) {
+        closeEditModal.addEventListener('click', () => {
+            editModal.style.display = 'none';
+        });
+        // 點背景也關閉編輯 Modal (類似您原本的邏輯)
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) editModal.style.display = 'none';
+        });
+    } else {
+        if (!editModal) console.error("HTML 錯誤: 找不到 'editModalOverlay'");
+        if (!closeEditModal) console.error("HTML 錯誤: 找不到 'closeEditModal'");
+    }
+    // 🔼🔼🔼 [ 🟢 新增的 JS 區塊 ] 🔼🔼🔼
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "plugins": [
+    "import"
+  ],
+  "rules": {
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal"
+        ],
+        "newlines-between": "always"
+      }
+    ]
+  }
+}

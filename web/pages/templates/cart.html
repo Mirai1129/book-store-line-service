@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBook - 購物車</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link rel="stylesheet" href="../static/css/style.css"/>
+    <style>
+        /* 只針對購物車頁面標題靠左 */
+        .intro-section.intro-top {
+            text-align: left;
+        }
+    </style>
+</head>
+<body id="page-cart">
+<header class="nav">
+    <div class="nav-container">
+      <!-- 📘 左側：品牌區塊 -->
+      <div class="brand">
+        <img src="logo.png" alt="網站Logo" class="brand-logo" />
+        <span class="brand-name">LineShelf AI書快拍</span>
+      </div>
+      <nav class="nav-links">
+        <a href="/">首頁</a>
+        <a href="/book">我的書籍</a>
+        <a href="/cart">購物車</a>
+      </nav>
+    </div>
+<div class="nav-right">
+    <div class="nav-user">
+      <img id="user-picture" src="" alt="User Picture">
+      <span id="user-name"></span>
+      <span id="user-id" style="display:none;"></span>
+    </div>
+    <button onclick="liff.logout()">登出</button>
+</div>
+</header>
+
+<main class="container">
+    <!-- 使用 intro-section 保留上方間距，intro-top 文字靠左 -->
+    <div class="intro-section intro-top">
+        <h2>購物車</h2>
+    </div>
+
+    <!-- 購物車項目區 -->
+    <section id="cartItems" class="cart-items">
+        <!-- 由 cart.js 插入 -->
+    </section>
+
+    <!-- 購物車底部按鈕 -->
+    <div class="cart-footer">
+        <button id="editCart">編輯購物車</button>
+        <button id="checkoutBtn">結帳</button>
+    </div>
+</main>
+
+<script type="module" src="../static/js/cart.js"></script>
+</body>
+</html>
