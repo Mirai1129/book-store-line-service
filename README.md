@@ -18,8 +18,9 @@
 
    請在對應的資料夾中建立 `.env` 檔案：
 
-   A. [後端設定](.backend/README.md) (backend/`.env`)
-   B. [BFF 設定](.web/README.md) (web/`.env`)
+   1. [後端設定](.backend/README.md) (backend/`.env`)
+
+   2. [BFF 設定](.web/README.md) (web/`.env`)
 
 3. 啟動服務 (Docker)
 
