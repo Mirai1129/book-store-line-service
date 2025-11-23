@@ -16,6 +16,8 @@ class BookBase(BaseModel):
     image_front_url: Optional[str] = Field(None, description="Front cover image")
     image_spine_url: Optional[str] = Field(None, description="Spine image")
     image_back_url: Optional[str] = Field(None, description="Back cover image")
+    has_highlight: bool = Field(default=False, description="是否有螢光筆註記")
+    has_note: bool = Field(default=False, description="是否有書寫筆記")
     is_sold: bool = Field(default=False, description="Is sold out")
 
     model_config = ConfigDict(
@@ -38,6 +40,8 @@ class BookUpdate(BaseModel):
     image_front_url: Optional[str] = None
     image_spine_url: Optional[str] = None
     image_back_url: Optional[str] = None
+    has_highlight: Optional[bool] = None
+    has_note: Optional[bool] = None
     is_sold: Optional[bool] = None
 
 

@@ -9,7 +9,9 @@ const SAMPLE_BOOKS = [
         author: "作者 A",
         price: 100,
         seller_id: "other",
-        description: "範例描述..."
+        description: "範例描述...",
+        has_highlight: true, // 測試用
+        has_note: false
     },
     {
         _id: "sample_2",
@@ -18,7 +20,9 @@ const SAMPLE_BOOKS = [
         author: "作者 B",
         price: 200,
         seller_id: "other",
-        description: "範例描述..."
+        description: "範例描述...",
+        has_highlight: false,
+        has_note: true
     }
 ];
 
@@ -80,6 +84,7 @@ function showBookModal(book) {
     const modal = document.getElementById("bookModal");
     if (!modal || !book) return;
 
+    // 1. 圖片處理
     const images = [
         {src: book.image_front_url || book.image_url, label: '封面'},
         {src: book.image_spine_url, label: '書背'},
@@ -99,23 +104,27 @@ function showBookModal(book) {
         galleryWrapper.className = "modal-gallery-wrapper";
 
         const existingImg = document.getElementById("modalImg");
-
-        existingImg.parentNode.insertBefore(galleryWrapper, existingImg);
-        galleryWrapper.appendChild(existingImg);
+        // 確保 existingImg 存在才插入
+        if (existingImg) {
+            existingImg.parentNode.insertBefore(galleryWrapper, existingImg);
+            galleryWrapper.appendChild(existingImg);
+        }
     }
 
     const mainImg = document.getElementById("modalImg");
-    mainImg.src = images[0].src;
+    if (mainImg) mainImg.src = images[0].src;
 
+    // 清除舊箭頭
     const oldPrev = galleryWrapper.querySelector('.nav-btn.prev');
     const oldNext = galleryWrapper.querySelector('.nav-btn.next');
     if (oldPrev) oldPrev.remove();
     if (oldNext) oldNext.remove();
 
+    // 只有多張圖才顯示箭頭
     if (images.length > 1) {
         const prevBtn = document.createElement("button");
         prevBtn.className = "nav-btn prev";
-        prevBtn.innerHTML = "&#10094;"; // 左箭頭符號
+        prevBtn.innerHTML = "&#10094;";
         prevBtn.onclick = () => {
             currentIndex = (currentIndex - 1 + images.length) % images.length;
             updateMainImage(currentIndex);
@@ -123,7 +132,7 @@ function showBookModal(book) {
 
         const nextBtn = document.createElement("button");
         nextBtn.className = "nav-btn next";
-        nextBtn.innerHTML = "&#10095;"; // 右箭頭符號
+        nextBtn.innerHTML = "&#10095;";
         nextBtn.onclick = () => {
             currentIndex = (currentIndex + 1) % images.length;
             updateMainImage(currentIndex);
@@ -133,11 +142,13 @@ function showBookModal(book) {
         galleryWrapper.appendChild(nextBtn);
     }
 
+    // 縮圖處理
     let thumbContainer = document.getElementById("modalThumbnails");
     if (!thumbContainer) {
         thumbContainer = document.createElement("div");
         thumbContainer.id = "modalThumbnails";
         thumbContainer.className = "modal-thumbnails";
+        // 插入在 galleryWrapper 之後
         galleryWrapper.parentNode.insertBefore(thumbContainer, galleryWrapper.nextSibling);
     }
     thumbContainer.innerHTML = "";
@@ -167,12 +178,62 @@ function showBookModal(book) {
         if (thumbs[idx]) thumbs[idx].classList.add("active");
     }
 
+    // 2. 文字資訊填充
     document.getElementById("modalTitle").innerText = book.title;
     document.getElementById("modalAuthor").innerText = `作者：${book.author}`;
     document.getElementById("modalPrice").innerText = `價格：NT$ ${book.price}`;
+
+    // [ ⬇️ ⬇️ ⬇️ 新增：顯示書況標籤 (螢光/筆記) ⬇️ ⬇️ ⬇️ ]
+    // 檢查是否已有標籤容器，沒有就建立
+    let tagsContainer = document.getElementById("modalTags");
+    if (!tagsContainer) {
+        tagsContainer = document.createElement("div");
+        tagsContainer.id = "modalTags";
+        tagsContainer.style.display = "flex";
+        tagsContainer.style.justifyContent = "center";
+        tagsContainer.style.gap = "8px";
+        tagsContainer.style.marginTop = "8px";
+        tagsContainer.style.marginBottom = "8px";
+
+        // 插入在價格 (modalPrice) 之後
+        const priceEl = document.getElementById("modalPrice");
+        if (priceEl) {
+            priceEl.parentNode.insertBefore(tagsContainer, priceEl.nextSibling);
+        }
+    }
+    tagsContainer.innerHTML = ""; // 清空舊標籤
+
+    if (book.has_highlight) {
+        const tag = document.createElement("span");
+        tag.innerText = "🖍 有螢光/劃線";
+        // 樣式：淺黃底深黃字
+        tag.style.backgroundColor = "#fff3cd";
+        tag.style.color = "#856404";
+        tag.style.padding = "4px 8px";
+        tag.style.borderRadius = "4px";
+        tag.style.fontSize = "0.85rem";
+        tag.style.fontWeight = "bold";
+        tagsContainer.appendChild(tag);
+    }
+
+    if (book.has_note) {
+        const tag = document.createElement("span");
+        tag.innerText = "✏️ 有書寫筆記";
+        // 樣式：淺灰底深灰字
+        tag.style.backgroundColor = "#e2e3e5";
+        tag.style.color = "#383d41";
+        tag.style.padding = "4px 8px";
+        tag.style.borderRadius = "4px";
+        tag.style.fontSize = "0.85rem";
+        tag.style.fontWeight = "bold";
+        tagsContainer.appendChild(tag);
+    }
+    // [ ⬆️ ⬆️ ⬆️ 新增完畢 ⬆️ ⬆️ ⬆️ ]
+
     const desc = book.description || `書況：${book.condition || '良好'}`;
     document.getElementById("modalDescription").innerText = desc;
 
+    // 3. 按鈕處理
     const oldBtn = document.getElementById("modalAddToCartBtn");
     if (oldBtn) oldBtn.remove();
 

@@ -1,6 +1,25 @@
 // import liff from "/@line/liff";
 import {getLiffId, getWebUrl, API_ENDPOINTS} from "./config.js";
 
+function getSafeId(book) {
+    if (!book) {
+        return null;
+    }
+
+    if (typeof book._id === 'string') {
+        return book._id;
+    }
+
+    if (book._id && book._id.$oid) {
+        return book._id.$oid;
+    }
+
+    if (book.id) {
+        return book.id;
+    }
+    return null;
+}
+
 
 async function syncUserProfile(profile) {
     try {
@@ -26,7 +45,6 @@ async function syncUserProfile(profile) {
 
 async function initBookLiffApp() {
     const profile = await liff.getProfile();
-    // 更新 UI
     document.getElementById("user-picture").src = profile.pictureUrl;
     document.getElementById("user-name").innerText = profile.displayName;
     document.getElementById("user-id").innerText = profile.userId;
@@ -36,7 +54,9 @@ async function initBookLiffApp() {
 
 async function loadBooks() {
     const container = document.getElementById('myBooksList');
-    if (!container) return;
+    if (!container) {
+        return;
+    }
 
     try {
         const response = await fetch(API_ENDPOINTS.myBooks);
@@ -52,21 +72,27 @@ async function loadBooks() {
             return;
         }
         books.forEach((b) => {
-            if (!b || !b._id) {
+            const bookId = getSafeId(b);
+            if (!bookId) {
                 return;
             }
+
             const el = document.createElement('div');
             el.className = 'book';
+
+            const soldBadge = b.is_sold ? '<span style="color:red; font-weight:bold;">(已售出)</span> ' : '';
+
             el.innerHTML = `
                 <img src="${b.image_url || 'static/images/default_book.png'}" alt="${b.title || '書籍封面'}" />
-                <h4>${b.title || '未知書名'}</h4>
+                <h4>${soldBadge}${b.title || '未知書名'}</h4>
                 <p><small>作者：${b.author || '未知作者'}</small></p>
                 <p>AI書況預測: ${b.condition || '尚未預測'}</p>
                 <div class="row">
                   <div>NT$ ${b.price || '?'}</div>
                   <div>
-                    <button class="edit-btn" data-id="${b._id}">編輯</button>
-                    <button class="delete-btn" data-id="${b._id}">刪除</button>
+                    <button class="edit-btn" data-id="${bookId}">編輯</button>
+                    <button class="delete-btn" data-id="${bookId}">刪除</button>
+                    <!-- [ ⬆️ ⬆️ ⬆️ 修改完畢 ⬆️ ⬆️ ⬆️ ] -->
                   </div>
                 </div>
               `;
@@ -79,8 +105,12 @@ async function loadBooks() {
 }
 
 async function deleteBook(id) {
-    if (!id) return alert("刪除時發生錯誤");
-    if (!confirm('您確定要刪除這本書嗎？此動作無法復原。')) return;
+    if (!id) {
+        return alert("刪除時發生錯誤 (ID 無效)");
+    }
+    if (!confirm('您確定要刪除這本書嗎？此動作無法復原。')) {
+        return;
+    }
 
     try {
         const res = await fetch(API_ENDPOINTS.bookById(id), {method: 'DELETE'});
@@ -98,7 +128,7 @@ async function deleteBook(id) {
 }
 
 async function openEditModal(id) {
-    if (!id) return alert("開啟編輯時發生錯誤");
+    if (!id) return alert("開啟編輯時發生錯誤 (ID 無效)");
 
     try {
         const res = await fetch(API_ENDPOINTS.bookById(id));
@@ -107,11 +137,14 @@ async function openEditModal(id) {
             throw new Error(`無法取得書籍資料： ${errorData.error || res.statusText}`);
         }
         const book = await res.json();
-        document.getElementById('editBookId').value = book._id;
+
+        const bookId = getSafeId(book);
+        document.getElementById('editBookId').value = bookId;
         document.getElementById('editBookTitle').value = book.title || '';
         document.getElementById('editBookAuthor').value = book.author || '';
         document.getElementById('editBookPrice').value = book.price || '';
-        document.getElementById('editBookCondition').value = book.condition || '';
+        document.getElementById('editBookHasHighlight').checked = book.has_highlight || false;
+        document.getElementById('editBookHasNote').checked = book.has_note || false;
         document.getElementById('editModalOverlay').style.display = 'flex';
     } catch (err) {
         console.error('❌ 開啟編輯時發生錯誤:', err);
@@ -129,24 +162,31 @@ function bindAllEventListeners() {
             const author = document.getElementById("bookAuthor").value.trim();
             const priceStr = document.getElementById("bookPrice").value.trim();
             const price = Number(priceStr);
-
+            const hasHighlight = document.getElementById("bookHasHighlight").checked;
+            const hasNote = document.getElementById("bookHasNote").checked;
             const frontFile = document.getElementById("bookFrontInput").files[0];
             const spineFile = document.getElementById("bookSpineInput").files[0];
             const backFile = document.getElementById("bookBackInput").files[0];
-
             const userId = document.getElementById("user-id").innerText;
             const resultDiv = document.getElementById("result");
 
-            if (!title || !author || !priceStr) return alert("請填寫書籍資料！");
-            if (isNaN(price) || price <= 0) return alert("價格請輸入正確數字！");
-
+            if (!title || !author || !priceStr) {
+                return alert("請填寫書籍資料！");
+            }
+            if (isNaN(price) || price <= 0) {
+                return alert("價格請輸入正確數字！");
+            }
             if (!frontFile || !spineFile || !backFile) {
-                return alert("請完整上傳三張圖片 (封面、書背、封底)！");
+                return alert("請完整上傳三張圖片！");
+            }
+            if (!userId) {
+                return alert("無法取得使用者資訊！");
             }
 
-            if (!userId) return alert("無法取得使用者資訊，請重新整理頁面！");
+            if (resultDiv) {
+                resultDiv.innerHTML = "☁️ 正在上傳圖片...";
+            }
 
-            if (resultDiv) resultDiv.innerHTML = "☁️ 正在上傳圖片並建立書籍...";
             uploadBtn.disabled = true;
 
             try {
@@ -155,55 +195,41 @@ function bindAllEventListeners() {
                 uploadFormData.append("spine", spineFile);
                 uploadFormData.append("back", backFile);
 
-                const uploadRes = await fetch(API_ENDPOINTS.upload, {
-                    method: "POST",
-                    body: uploadFormData
-                });
-
+                const uploadRes = await fetch(API_ENDPOINTS.upload, {method: "POST", body: uploadFormData});
                 if (!uploadRes.ok) {
-                    const errText = await uploadRes.text();
-                    throw new Error(`圖片上傳失敗 (${uploadRes.status}): ${errText}`);
+                    throw new Error(`圖片上傳失敗: ${uploadRes.status}`);
                 }
-
                 const urls = await uploadRes.json();
-                console.log("圖片上傳成功:", urls);
 
-                if (resultDiv) resultDiv.innerHTML = "🤖 正在進行 AI 書況分析...";
-
+                if (resultDiv) {
+                    resultDiv.innerHTML = "🤖 正在 AI 分析...";
+                }
                 const predictFormData = new FormData();
                 predictFormData.append("front", frontFile);
                 predictFormData.append("spine", spineFile);
                 predictFormData.append("back", backFile);
 
-                const predictRes = await fetch(API_ENDPOINTS.predict, {
-                    method: "POST",
-                    body: predictFormData
-                });
-
+                const predictRes = await fetch(API_ENDPOINTS.predict, {method: "POST", body: predictFormData});
                 if (!predictRes.ok) {
-                    const errText = await predictRes.text();
-                    throw new Error(`AI 預測失敗 (${predictRes.status}): ${errText}`);
+                    throw new Error("AI 預測失敗");
                 }
-
                 const predictData = await predictRes.json();
-                const aiCondition = predictData.condition || predictData.desc || "無法辨識";
-                console.log(aiCondition)
-                console.log("✅ AI 預測完成:", aiCondition);
+                const aiCondition = predictData.condition || "無法辨識";
 
                 document.getElementById("bookCondition").innerText = aiCondition;
 
-                if (resultDiv) resultDiv.innerHTML = "💾 正在儲存書籍資料...";
+                if (resultDiv) {
+                    resultDiv.innerHTML = "💾 儲存中...";
+                }
 
                 const bookData = {
-                    title: title,
-                    author: author,
-                    price: price,
-                    seller_id: userId,
-                    condition: aiCondition,
+                    title, author, price, seller_id: userId, condition: aiCondition,
                     image_url: urls.front,
                     image_front_url: urls.front,
                     image_spine_url: urls.spine,
-                    image_back_url: urls.back
+                    image_back_url: urls.back,
+                    has_highlight: hasHighlight,
+                    has_note: hasNote
                 };
 
                 const saveRes = await fetch(API_ENDPOINTS.books, {
@@ -213,25 +239,28 @@ function bindAllEventListeners() {
                 });
 
                 if (saveRes.ok) {
-                    alert(`書籍上架成功！\nAI 判定書況：${aiCondition}`);
+                    alert(`上架成功！`);
                     await loadBooks();
-
                     document.getElementById('modalOverlay').style.display = 'none';
                     document.getElementById("bookTitle").value = "";
                     document.getElementById("bookAuthor").value = "";
                     document.getElementById("bookPrice").value = "";
+                    document.getElementById("bookHasHighlight").checked = false;
+                    document.getElementById("bookHasNote").checked = false;
                     document.getElementById("bookFrontInput").value = "";
                     document.getElementById("bookSpineInput").value = "";
                     document.getElementById("bookBackInput").value = "";
                     document.getElementById("bookCondition").innerText = "尚未預測";
-                    if (resultDiv) resultDiv.innerHTML = "";
+
+                    if (resultDiv) {
+                        resultDiv.innerHTML = "";
+                    }
                 } else {
                     const errData = await saveRes.json();
-                    throw new Error(`上架失敗： ${errData.error || saveRes.statusText}`);
+                    throw new Error(`上架失敗：${errData.detail || "未知錯誤"}`);
                 }
-
             } catch (err) {
-                console.error("❌ 上架流程失敗：", err);
+                console.error(err);
                 if (resultDiv) resultDiv.innerHTML = `<p style='color:red;'>錯誤: ${err.message}</p>`;
                 alert(`發生錯誤: ${err.message}`);
             } finally {
@@ -244,13 +273,18 @@ function bindAllEventListeners() {
     if (saveEditBtn) {
         saveEditBtn.addEventListener('click', async () => {
             const id = document.getElementById('editBookId').value;
+
+            if (!id || id === "undefined" || id === "[object Object]") {
+                return alert('錯誤：書籍 ID 無效，請重新整理頁面後再試。');
+            }
+
             const updatedData = {
                 title: document.getElementById('editBookTitle').value.trim(),
                 author: document.getElementById('editBookAuthor').value.trim(),
                 price: Number(document.getElementById('editBookPrice').value),
-                condition: document.getElementById('editBookCondition').value.trim(),
+                has_highlight: document.getElementById('editBookHasHighlight').checked,
+                has_note: document.getElementById('editBookHasNote').checked
             };
-            if (!id) return alert('錯誤：找不到書籍 ID');
 
             try {
                 const res = await fetch(API_ENDPOINTS.bookById(id), {
@@ -265,7 +299,11 @@ function bindAllEventListeners() {
                     loadBooks();
                 } else {
                     const err = await res.json();
-                    throw new Error(`更新失敗： ${err.error || res.statusText}`);
+                    if (res.status === 404) {
+                        alert("更新失敗：找不到書籍或書籍可能已售出/被刪除。");
+                    } else {
+                        throw new Error(`更新失敗： ${err.error || res.statusText}`);
+                    }
                 }
             } catch (err) {
                 console.error('❌ 更新時發生錯誤:', err);
@@ -291,7 +329,6 @@ function bindAllEventListeners() {
     }
 }
 
-
 async function main() {
     try {
         const liffIdString = await getLiffId();
@@ -315,7 +352,9 @@ async function main() {
     } catch (err) {
         console.error("❌ LIFF 初始化錯誤:", err);
         const container = document.getElementById("myBooksList");
-        if (container) container.innerText = "LIFF 初始化失敗。";
+        if (container) {
+            container.innerText = "LIFF 初始化失敗。";
+        }
     }
 }
 
