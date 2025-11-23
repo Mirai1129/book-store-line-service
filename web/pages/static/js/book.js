@@ -214,7 +214,7 @@ function bindAllEventListeners() {
                     throw new Error("AI 預測失敗");
                 }
                 const predictData = await predictRes.json();
-                const aiCondition = predictData.condition || "無法辨識";
+                const aiCondition = predictData.desc || "無法辨識";
 
                 document.getElementById("bookCondition").innerText = aiCondition;
 
